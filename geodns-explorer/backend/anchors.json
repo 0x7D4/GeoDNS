@@ -1,0 +1,8 @@
+[
+  {"id": "mumbai-01",    "city": "Mumbai",    "wg_ip": "10.8.0.2", "lat": 19.0760, "lon": 72.8777},
+  {"id": "delhi-01",     "city": "Delhi",     "wg_ip": "10.8.0.3", "lat": 28.6139, "lon": 77.2090},
+  {"id": "kolkata-01",   "city": "Kolkata",   "wg_ip": "10.8.0.4", "lat": 22.5726, "lon": 88.3639},
+  {"id": "chennai-01",   "city": "Chennai",   "wg_ip": "10.8.0.5", "lat": 13.0827, "lon": 80.2707},
+  {"id": "bangalore-01", "city": "Bangalore", "wg_ip": "10.8.0.6", "lat": 12.9716, "lon": 77.5946},
+  {"id": "hyderabad-01", "city": "Hyderabad", "wg_ip": "10.8.0.7", "lat": 17.3850, "lon": 78.4867}
+]
