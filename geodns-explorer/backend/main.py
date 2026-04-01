@@ -92,22 +92,20 @@ def _is_private_ip(ip_str: str) -> bool:
         return False
 
 
-def _extract_client_ip(request: Request) -> str:
-    """Extract the real client IP, respecting X-Forwarded-For from nginx."""
-    # Check X-Forwarded-For first (set by nginx reverse proxy)
-    xff = request.headers.get("x-forwarded-for")
-    if xff:
-        # X-Forwarded-For: client, proxy1, proxy2 — take the first
-        real_ip = xff.split(",")[0].strip()
-        if real_ip:
-            return real_ip
-
-    # Check X-Real-IP (alternative nginx header)
-    x_real = request.headers.get("x-real-ip")
-    if x_real:
-        return x_real.strip()
-
-    # Fall back to direct connection
+def get_real_ip(request: Request) -> str:
+    """Extract real client IP, rejecting private/loopback spoofing."""
+    forwarded_for = request.headers.get("X-Forwarded-For")
+    if forwarded_for:
+        ip = forwarded_for.split(",")[0].strip()
+        if not ip.startswith(("127.", "10.", "192.168.", "172.")):
+            return ip
+            
+    real_ip = request.headers.get("X-Real-IP")
+    if real_ip:
+        ip = real_ip.strip()
+        if not ip.startswith(("127.", "10.", "192.168.", "172.")):
+            return ip
+            
     return request.client.host if request.client else "127.0.0.1"
 
 
@@ -162,7 +160,7 @@ async def locate(request: Request, ip: Optional[str] = None):
     For private/loopback IPs (local dev), returns a mock Kolkata
     location so the nearest-anchor logic still works.
     """
-    target_ip = ip or _extract_client_ip(request)
+    target_ip = ip or get_real_ip(request)
 
     # Private/loopback IP → mock location for local dev
     if _is_private_ip(target_ip):
@@ -203,7 +201,7 @@ async def query_dns(request: Request, body: QueryRequest):
     else:
         # Auto-select nearest anchor
         selection_method = "auto"
-        target_ip = _extract_client_ip(request)
+        target_ip = get_real_ip(request)
 
         if _is_private_ip(target_ip):
             location = {**MOCK_LOCAL_LOCATION, "ip": target_ip}

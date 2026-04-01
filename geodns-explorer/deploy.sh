@@ -444,6 +444,32 @@ step_setup_https() {
 }
 
 # ---------------------------------------------------------------------------
+# Step 8.5: IP Detection Health Check
+# ---------------------------------------------------------------------------
+check_ip_detection() {
+  if [[ "${DRY_RUN}" == true ]]; then
+    echo "  [DRY-RUN] Verifying IP detection..."
+    return
+  fi
+
+  echo "[ HEALTH ] Verifying IP detection..."
+  RESPONSE=$(curl -s http://localhost/api/locate)
+  SOURCE=$(echo "$RESPONSE" | python3 -c \
+    "import sys,json; print(json.load(sys.stdin)[\"location\"][\"source\"])")
+  IP=$(echo "$RESPONSE" | python3 -c \
+    "import sys,json; print(json.load(sys.stdin)[\"location\"][\"ip\"])")
+
+  if [ "$SOURCE" = "mock-local" ]; then
+    echo "✗ IP detection still returning mock-local."
+    echo "  Check: nginx X-Forwarded-For headers not passing through."
+    echo "  Run: grep 'X-Forwarded-For' /etc/nginx/sites-available/geodns-explorer"
+    exit 1
+  fi
+
+  echo "✓ IP detection: $IP (source: $SOURCE)"
+}
+
+# ---------------------------------------------------------------------------
 # Step 9: Success banner
 # ---------------------------------------------------------------------------
 step_success_banner() {
@@ -552,6 +578,7 @@ main() {
     step_configure_nginx
     step_setup_service
     step_setup_https
+    check_ip_detection
     step_success_banner
 }
 
