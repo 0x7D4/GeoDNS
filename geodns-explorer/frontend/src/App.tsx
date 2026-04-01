@@ -10,7 +10,7 @@ export type LocateData = {
   nearest_anchor: { id: string; city: string };
 } | null;
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '';
 
 export default function App() {
   const [locateData, setLocateData] = useState<LocateData>(null);

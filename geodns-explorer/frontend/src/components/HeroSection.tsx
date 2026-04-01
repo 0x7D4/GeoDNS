@@ -3,7 +3,7 @@ import type { LocateData } from '../App';
 import type { QueryResult, AnchorInfo as Anchor } from '../api';
 import ResultCard from './ResultCard';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '';
 
 export default function HeroSection({ locateData }: { locateData: LocateData }) {
   const [domain, setDomain] = useState('');
