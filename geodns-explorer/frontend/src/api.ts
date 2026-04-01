@@ -29,6 +29,8 @@ export interface QueryResult {
   answers?: string[];
   query_time_ms?: number | null;
   resolver_used?: string;
+  nameserver_used?: string;
+  ttl?: number;
   status?: string;
   raw_output?: string;
   anchor_id?: string;
