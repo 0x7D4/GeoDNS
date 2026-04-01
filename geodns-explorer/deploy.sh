@@ -317,6 +317,25 @@ step_configure_nginx() {
         # Remove default site to avoid conflicts
         rm -f /etc/nginx/sites-enabled/default
 
+        # Remove any duplicate proxy_set_header lines (idempotency guard)
+        python3 - <<'EOF'
+import re, sys
+path = "/etc/nginx/sites-available/geodns-explorer"
+with open(path) as f:
+    content = f.read()
+seen = set()
+lines = []
+for line in content.splitlines(keepends=True):
+    stripped = line.strip()
+    if stripped.startswith("proxy_set_header"):
+        if stripped in seen:
+            continue
+        seen.add(stripped)
+    lines.append(line)
+with open(path, "w") as f:
+    f.writelines(lines)
+EOF
+
         # Test configuration
         if ! nginx -t 2>&1; then
             fail "nginx config test failed"
