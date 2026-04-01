@@ -472,20 +472,26 @@ check_ip_detection() {
   fi
 
   echo "[ HEALTH ] Verifying IP detection..."
-  RESPONSE=$(curl -s http://localhost/api/locate)
+
+  RESPONSE=$(curl -s \
+    -H "X-Forwarded-For: 49.36.0.1" \
+    http://localhost/api/locate)
+
   SOURCE=$(echo "$RESPONSE" | python3 -c \
-    "import sys,json; print(json.load(sys.stdin)[\"location\"][\"source\"])")
-  IP=$(echo "$RESPONSE" | python3 -c \
-    "import sys,json; print(json.load(sys.stdin)[\"location\"][\"ip\"])")
+    "import sys,json; print(json.load(sys.stdin)['location']['source'])")
+
+  CITY=$(echo "$RESPONSE" | python3 -c \
+    "import sys,json; print(json.load(sys.stdin)['location']['city'])")
 
   if [ "$SOURCE" = "mock-local" ]; then
     echo "✗ IP detection still returning mock-local."
-    echo "  Check: nginx X-Forwarded-For headers not passing through."
-    echo "  Run: grep 'X-Forwarded-For' /etc/nginx/sites-available/geodns-explorer"
+    echo "  nginx X-Forwarded-For header is not passing through."
+    echo "  Config: $(grep -c 'X-Forwarded-For' \
+      /etc/nginx/sites-available/geodns-explorer) occurrence(s) found."
     exit 1
   fi
 
-  echo "✓ IP detection: $IP (source: $SOURCE)"
+  echo "✓ IP detection working: source=$SOURCE city=$CITY"
 }
 
 # ---------------------------------------------------------------------------
