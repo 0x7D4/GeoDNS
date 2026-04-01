@@ -1,3 +1,4 @@
 fastapi
 uvicorn[standard]
 python-multipart
+dnspython>=2.4.0

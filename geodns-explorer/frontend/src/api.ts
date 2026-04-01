@@ -36,6 +36,7 @@ export interface QueryResult {
   error_detail?: string;
   anchor_used?: AnchorInfo;
   selection_method?: string;
+  timestamp?: number;
 }
 
 export interface HealthResponse {
